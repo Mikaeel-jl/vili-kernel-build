@@ -22,17 +22,18 @@ jobs:
         run: |
             mkdir -p toolchains && cd toolchains
 
-            # Download Clang (Latest Android prebuilt)
-            wget -O llvm.tar.gz https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android14-release/clang-r487747c.tar.gz
+            # Download Clang (Android 15 prebuilt)
+            wget -O llvm.tar.gz https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android15-release/clang-r498229b.tar.gz
             mkdir llvm && tar -xf llvm.tar.gz -C llvm
 
             # Download GCC for aarch64
-            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-11 aarch64
+            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-12 aarch64
 
             # Download GCC for arm
-            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-11 arm
+            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-12 arm
 
             cd ..
+
 
 
       - name: Set Environment Variables
