@@ -1,0 +1,57 @@
+name: Compile Android Kernel
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kernel Source
+        uses: actions/checkout@v4
+        with:
+          repository: AOSP-for-vili/android_kernel_xiaomi_sm8350
+          fetch-depth: 1
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y bc flex bison build-essential \
+              libssl-dev ccache clang lld lldb libelf-dev git wget curl
+
+      - name: Download Clang & GCC
+        run: |
+          mkdir -p toolchains && cd toolchains
+          
+          # دانلود Clang از گوگل
+          wget -O llvm.tar.gz https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784d.tar.gz
+          mkdir llvm
+          tar -xf llvm.tar.gz -C llvm
+
+          # دانلود GCC برای aarch64
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-10 aarch64
+
+          # دانلود GCC برای arm
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-10 arm
+          
+          cd ..
+
+      - name: Set Environment Variables
+        run: |
+          echo "PATH=$GITHUB_WORKSPACE/toolchains/llvm/bin:$GITHUB_WORKSPACE/toolchains/aarch64/bin:$GITHUB_WORKSPACE/toolchains/arm/bin:$PATH" >> $GITHUB_ENV
+          echo "ARCH=arm64" >> $GITHUB_ENV
+          echo "SUBARCH=arm64" >> $GITHUB_ENV
+          echo "CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/aarch64/bin/aarch64-linux-android-" >> $GITHUB_ENV
+          echo "CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/toolchains/arm/bin/arm-linux-androideabi-" >> $GITHUB_ENV
+          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
+          echo "CC=clang" >> $GITHUB_ENV
+
+      - name: Compile Kernel
+        run: |
+          make vendor/vili_defconfig
+          make -j$(nproc) CC=clang LLVM=1 2>&1 | tee build.log
+
+      - name: Upload Compiled Kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled_kernel
+          path: arch/arm64/boot/Image.gz-dtb
