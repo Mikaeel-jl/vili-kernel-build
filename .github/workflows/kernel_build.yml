@@ -20,20 +20,20 @@ jobs:
 
       - name: Download Clang & GCC
         run: |
-          mkdir -p toolchains && cd toolchains
-          
-          # دانلود Clang از گوگل
-          wget -O llvm.tar.gz https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-release/clang-r450784d.tar.gz
-          mkdir llvm
-          tar -xf llvm.tar.gz -C llvm
+            mkdir -p toolchains && cd toolchains
 
-          # دانلود GCC برای aarch64
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-10 aarch64
+            # Download Clang (Latest Android prebuilt)
+            wget -O llvm.tar.gz https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android14-release/clang-r487747c.tar.gz
+            mkdir llvm && tar -xf llvm.tar.gz -C llvm
 
-          # دانلود GCC برای arm
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-10 arm
-          
-          cd ..
+            # Download GCC for aarch64
+            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-11 aarch64
+
+            # Download GCC for arm
+            git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-11 arm
+
+            cd ..
+
 
       - name: Set Environment Variables
         run: |
